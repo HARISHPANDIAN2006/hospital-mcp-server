@@ -824,6 +824,6 @@ if __name__ == "__main__":
     print("=" * 50, file=sys.stderr)
     
     if args.transport == "sse":
-        mcp.run(transport="sse", port=args.port, host="0.0.0.0")
+        mcp.run(transport="sse")
     else:
         mcp.run()
