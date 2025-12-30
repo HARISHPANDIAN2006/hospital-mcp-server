@@ -824,6 +824,14 @@ if __name__ == "__main__":
     print("=" * 50, file=sys.stderr)
     
     if args.transport == "sse":
-        mcp.run(transport="sse")
+    # Import uvicorn to run with custom host and port
+        import uvicorn
+        from fastmcp.server import create_server_app
+        
+        # Create the FastMCP app
+        app = create_server_app(mcp)
+        
+        # Run with proper host and port binding
+        uvicorn.run(app, host="0.0.0.0", port=args.port)
     else:
         mcp.run()
