@@ -824,10 +824,7 @@ if __name__ == "__main__":
     print("=" * 50, file=sys.stderr)
     
     if args.transport == "sse":
-    # Get the ASGI app from FastMCP
-        app = mcp.http_app()
-        # Run with uvicorn, binding to 0.0.0.0
-        import uvicorn
-        uvicorn.run(app, host="0.0.0.0", port=args.port)
+    # Streamable HTTP is recommended over SSE
+        mcp.run(transport="http", host="0.0.0.0", port=args.port)
     else:
         mcp.run()
