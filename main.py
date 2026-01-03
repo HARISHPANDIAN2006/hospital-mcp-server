@@ -809,9 +809,10 @@ Prepare detailed questions about:
 if __name__ == "__main__":
     import argparse
     import uvicorn
+    import asyncio
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("--transport", choices=["stdio", "sse", "http"], default="stdio")
+    parser.add_argument("--transport", choices=["stdio", "sse"], default="stdio")
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     
@@ -821,21 +822,21 @@ if __name__ == "__main__":
     print(f"Database: {DB_NAME}", file=sys.stderr)
     print(f"Transport: {args.transport}", file=sys.stderr)
     print(f"Port: {args.port}", file=sys.stderr)
+    print(f"Binding to: 0.0.0.0:{args.port}", file=sys.stderr)
     print("=" * 50, file=sys.stderr)
     
-    if args.transport in ["sse", "http"]:
-        # Run the server with manual uvicorn configuration
-        # This ensures proper host and port binding
-        config = uvicorn.Config(
-            app="__main__:mcp",
-            host="0.0.0.0",
-            port=args.port,
-            log_level="info",
-            access_log=True
-        )
-        server = uvicorn.Server(config)
+    if args.transport == "sse":
+        # Create custom uvicorn config to force 0.0.0.0 binding
+        async def run_server():
+            config = uvicorn.Config(
+                app=mcp,
+                host="0.0.0.0",
+                port=args.port,
+                log_level="info"
+            )
+            server = uvicorn.Server(config)
+            await server.serve()
         
-        import asyncio
-        asyncio.run(server.serve())
+        asyncio.run(run_server())
     else:
         mcp.run()
