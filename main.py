@@ -808,9 +808,6 @@ Prepare detailed questions about:
 
 if __name__ == "__main__":
     import argparse
-    import uvicorn
-    import asyncio
-    import os
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--transport", choices=["stdio", "sse"], default="stdio")
@@ -822,29 +819,11 @@ if __name__ == "__main__":
     print("=" * 50, file=sys.stderr)
     print(f"Database: {DB_NAME}", file=sys.stderr)
     print(f"Transport: {args.transport}", file=sys.stderr)
-    print(f"Port: {args.port}", file=sys.stderr)
-    print(f"Binding to: 0.0.0.0:{args.port}", file=sys.stderr)
+    if args.transport == "sse":
+        print(f"Port: {args.port}", file=sys.stderr)
     print("=" * 50, file=sys.stderr)
     
     if args.transport == "sse":
-        # Disable host validation
-        os.environ["STARLETTE_ALLOWED_HOSTS"] = "*"
-        
-        # Get the ASGI app from FastMCP
-        from mcp.server.fastmcp.server import create_sse_server_starlette
-        app = create_sse_server_starlette(mcp._mcp_server)
-        
-        # Run with custom config
-        async def run_server():
-            config = uvicorn.Config(
-                app=app,
-                host="0.0.0.0",
-                port=args.port,
-                log_level="info"
-            )
-            server = uvicorn.Server(config)
-            await server.serve()
-        
-        asyncio.run(run_server())
+        mcp.run(transport="sse")
     else:
         mcp.run()
