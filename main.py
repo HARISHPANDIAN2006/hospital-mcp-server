@@ -810,6 +810,7 @@ if __name__ == "__main__":
     import argparse
     import uvicorn
     import asyncio
+    import os
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--transport", choices=["stdio", "sse"], default="stdio")
@@ -826,10 +827,17 @@ if __name__ == "__main__":
     print("=" * 50, file=sys.stderr)
     
     if args.transport == "sse":
-        # Create custom uvicorn config to force 0.0.0.0 binding
+        # Disable host validation
+        os.environ["STARLETTE_ALLOWED_HOSTS"] = "*"
+        
+        # Get the ASGI app from FastMCP
+        from mcp.server.fastmcp.server import create_sse_server_starlette
+        app = create_sse_server_starlette(mcp._mcp_server)
+        
+        # Run with custom config
         async def run_server():
             config = uvicorn.Config(
-                app=mcp,
+                app=app,
                 host="0.0.0.0",
                 port=args.port,
                 log_level="info"
