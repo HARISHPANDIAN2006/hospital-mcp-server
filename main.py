@@ -824,7 +824,11 @@ if __name__ == "__main__":
     print("=" * 50, file=sys.stderr)
     
     if args.transport == "sse":
-    # Streamable HTTP is recommended over SSE
-        mcp.run(transport="http", host="0.0.0.0", port=args.port)
+        # Disable host validation for cloud deployment
+        import os
+        os.environ["MCP_DISABLE_HOST_VALIDATION"] = "1"
+        
+        # Run with mcp directly
+        mcp.run(transport="sse")
     else:
         mcp.run()
