@@ -803,14 +803,13 @@ Prepare detailed questions about:
     return prompts.get(appointment_type, prompts["general"])
 
 # ============================================
-# Server Startup
+# Server Startup (STDIO ONLY)
 # ============================================
-
 if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("--transport", choices=["stdio", "sse"], default="stdio")
+    parser.add_argument("--transport", choices=["stdio", "sse", "http"], default="stdio")
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     
@@ -819,11 +818,11 @@ if __name__ == "__main__":
     print("=" * 50, file=sys.stderr)
     print(f"Database: {DB_NAME}", file=sys.stderr)
     print(f"Transport: {args.transport}", file=sys.stderr)
-    if args.transport == "sse":
+    if args.transport in ["sse", "http"]:
         print(f"Port: {args.port}", file=sys.stderr)
     print("=" * 50, file=sys.stderr)
     
-    if args.transport == "sse":
-        mcp.run(transport="sse")
+    if args.transport in ["sse", "http"]:
+        mcp.run(transport=args.transport)
     else:
         mcp.run()
