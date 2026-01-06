@@ -46,7 +46,15 @@ lab_reports_collection = db.lab_reports
 # Initialize FastMCP Server
 # ============================================
 
-mcp = FastMCP("hospital-management", json_response=True)
+PORT = int(os.environ.get("PORT", 10000))
+
+mcp = FastMCP(
+    "hospital-management",
+    host="0.0.0.0",
+    port=PORT,
+    json_response=True
+)
+
 
 # ============================================
 # Helper Functions
@@ -805,24 +813,21 @@ Prepare detailed questions about:
 # ============================================
 # Server Startup (STDIO ONLY)
 # ============================================
+# ============================================
+# Server Startup (STREAMABLE HTTP)
+# ============================================
+
+PORT = int(os.environ.get("PORT", 10000))
+
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--transport", choices=["stdio", "sse", "http"], default="stdio")
-    parser.add_argument("--port", type=int, default=8000)
-    args = parser.parse_args()
-    
-    print("=" * 50, file=sys.stderr)
+    print("=" * 60, file=sys.stderr)
     print("Hospital Management MCP Server", file=sys.stderr)
-    print("=" * 50, file=sys.stderr)
-    print(f"Database: {DB_NAME}", file=sys.stderr)
-    print(f"Transport: {args.transport}", file=sys.stderr)
-    if args.transport in ["sse", "http"]:
-        print(f"Port: {args.port}", file=sys.stderr)
-    print("=" * 50, file=sys.stderr)
-    
-    if args.transport in ["sse", "http"]:
-        mcp.run(transport=args.transport)
-    else:
-        mcp.run()
+    print("=" * 60, file=sys.stderr)
+    print(f"Database Name : {DB_NAME}", file=sys.stderr)
+    print(f"Transport     : streamable-http", file=sys.stderr)
+    print(f"Host          : 0.0.0.0", file=sys.stderr)
+    print(f"Port          : {PORT}", file=sys.stderr)
+    print("=" * 60, file=sys.stderr)
+
+    mcp.run(transport="streamable-http")
+
